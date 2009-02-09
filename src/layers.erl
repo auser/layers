@@ -6,7 +6,6 @@
 % Text exports
 -export ([construct/1]).
 
-% Run the layers with the layer supervisor
 start(Layers, Config) ->
 	F = fun([App, Successor]) -> 
 		% process_flag(trap_exit, true),
