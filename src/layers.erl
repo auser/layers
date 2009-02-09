@@ -1,21 +1,24 @@
 -module (layers).
 -author ("Ari Lerner").
 
--export ([init/1, running_receiver/2]).
+-export ([init/2, running_receiver/2]).
+
+% Text exports
+-export ([construct/1]).
 
 % Run the layers with the layer supervisor
-init(Layers) ->
-	F = fun(AppArry) -> 
-		io:format("Constructing ~p~n", [AppArry]),
+init(Layers, Config) ->
+	F = fun(App) -> 
 		% process_flag(trap_exit, true),
-		layers_app:start(normal, AppArry),
+		App:start(normal, Config),
 		receive
 			Anything ->
 				io:format("Caught exception ~p~n", [Anything])
+			after 1000 -> ok
 		end
 	end,
 	ConstructedArray = construct(Layers),
-	[ F(Layer) || Layer <- ConstructedArray ].
+	[ F(Layer, Config) || Layer <- ConstructedArray ].
 	
 % Construct an array that has both the layer and the successor
 % such as
