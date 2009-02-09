@@ -9,7 +9,8 @@
 start(Layers, Config) ->
 	F = fun([App, Successor]) -> 
 		% process_flag(trap_exit, true),
-		App:start(normal, config:update(successor, Successor, Config)),
+		App:start(normal, config:update(successor, [Successor], Config)),
+		timer:sleep(1000),
 		receive
 			Anything ->
 				io:format("Caught exception ~p~n", [Anything])
