@@ -7,3 +7,6 @@
 [submodule "deps/converse"]
 	path = deps/converse
 	url = git://github.com/auser/converse.git
+[submodule "deps/configerl"]
+	path = deps/configerl
+	url = git://github.com/auser/configerl.git
