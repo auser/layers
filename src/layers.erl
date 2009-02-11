@@ -50,7 +50,7 @@ running_receiver(Pid, Fun) when is_pid(Pid) ->
 run_fun(Fun) ->
 	case length(Fun) of
 		2 -> [M,F] = Fun;
-		1 -> [M] = Fun, F = receive_function
+		1 -> [M] = Fun, F = layers_receive
 	end,
 	A = [self()],
 	proc_lib:spawn_link(M,F,A).

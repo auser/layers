@@ -10,26 +10,26 @@
 	% layers:start().
 
 start() ->
-	converse:start(normal, [{receive_function, [?MODULE, receive_function]}]).
+	converse:start(normal, [{layers_receive, [?MODULE, layers_receive]}]).
 
-receive_function(From) ->
+layers_receive(From) ->
 	receive
 		{data, Socket, Data} ->
 			io:format("Received function ~p~n",[Data]),
 			case Data of
 				{data, Message} ->
 					io:format("Received data ~p from ~p~n", [Message, From]),
-					receive_function(From);
+					layers_receive(From);
 				{who_are_you} ->
 					io:format("Received who are you from ~p~n", [Socket]),
-					receive_function(From);
+					layers_receive(From);
 				Anything ->
 					io:format("Received anything: ~p~n", [Anything]),
-					receive_function(From)
+					layers_receive(From)
 			end;
 		Anything ->
 			io:format("Received ~p~n", [Anything]),
-			receive_function(From)
+			layers_receive(From)
 	end.
 
 hear(From) ->
