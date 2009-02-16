@@ -10,7 +10,11 @@
 	% layers:start().
 
 start() ->
-	converse:start(normal, [{layers_receive, [?MODULE, layers_receive]}]).
+	layers:start([converse, whisper, test_app], [{port, 1234}]).
+	% converse:start(normal, [{layers_receive, [?MODULE, layers_receive]}]).
+
+test() ->
+	converse:open_and_send({10,45,10,234}, {data, whisper:encrypt("hi")}).
 
 layers_receive(From) ->
 	receive
