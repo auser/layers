@@ -49,15 +49,6 @@ construct0(Array, Acc) when length(Array) > 0 ->
 	NewArray = [S|Rest],
 	construct0(NewArray, NewAcc).
 	
-% running_receiver(undefined, Fun) ->
-% 		run_fun(Fun);
-% 
-% running_receiver(Pid, Fun) when is_pid(Pid) ->
-% 	case is_process_alive(Pid) of
-% 		true -> Pid;
-% 		false ->run_fun(Fun)
-% 	end.
-
 pass(SuccessorFun, Msg) ->
 	Pid = running_receiver(SuccessorFun),
 	Pid ! Msg.

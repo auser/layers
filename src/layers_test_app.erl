@@ -1,4 +1,4 @@
--module (test_app).
+-module (layers_test_app).
 -compile (export_all).
 
 % start_layers() ->
