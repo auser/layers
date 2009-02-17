@@ -86,8 +86,13 @@ construct0(Array, Acc) when length(Array) > 0 ->
 	NewAcc = lists:append(Acc, [[H,S]]), NewArray = [S|Rest],
 	construct0(NewArray, NewAcc).
 	
+% Convert and array of tuples to an array of 
+% successors with their tuple
+% such as
+% [{bob, "man"}, {jane, "woman"}]
+% ->
+% [[bob, "man", jane], [jane, "woman", undefined]]
 construct_tuples(Array) -> construct_tuples0(Array, []).
-
 construct_tuples0([], Acc) -> Acc;
 construct_tuples0(Array, Acc) when length(Array) =:= 1 -> 
 	[{H,Config}] = Array,

@@ -1,17 +1,14 @@
 -module (layers_test_app).
 -compile (export_all).
 
-% start_layers() ->
-	% layers:init().
-	% layers:add(converse, [{port, 1234}]).
-	% layers:add(whisper, []).
-	% layers:add(email, [{to_email, "alerner@att.com"}]).
-	% layers:add(test_app, []).
-	% layers:start().
+start_layers() ->
+	layers:init(),
+	layers:add(converse, [{port, 1234}]),
+	layers:add(layers_test_app, []),
+	layers:start().
 
 start() ->
-	layers:start([converse, test_app], [{port, 1234}]).
-	% converse:start(normal, [{layers_receive, [?MODULE, layers_receive]}]).
+	layers:start([converse, layers_test_app], [{port, 1234}]).
 
 test() ->
 	converse:open_and_send({10,45,10,234}, {data, whisper:encrypt("hi")}).

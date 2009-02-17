@@ -15,7 +15,10 @@ construct_tuple_test_() ->
   [
 		?_assert( [] == layers:construct_tuples([]) ),
 		?_assert( [[1,[{port,5}],undefined]] == layers:construct_tuples( [{1, [{port, 5}]}] )),
+		?_assert( [[bob, "man", jane], [jane, "woman", undefined]] ==
+			layers:construct_tuples( [{bob, "man"}, {jane, "woman"}] )),
 		?_assert( 
-			[[1,[{port,1234}],2],[2,[{port,4321}],undefined]] == 
-			layers:construct_tuples( [{1,[{port, 1234}]}, {2, [{port, 4321}]}] ) )
+			[[1,[{port,1234}],2],
+			[2,[{port,4321}],undefined]] == 
+				layers:construct_tuples( [{1,[{port, 1234}]}, {2, [{port, 4321}]}] ) )
   ].
