@@ -53,25 +53,23 @@ pass(SuccessorFun, Msg) ->
 	Pid = running_receiver(SuccessorFun),
 	Pid ! Msg.
 
-running_receiver([M,F,A]) ->
+running_receiver(Mfa) ->
+	M = erlang:hd(Mfa),
 	case erlang:whereis(M) of
-		undefined -> run_fun([M,F,A]);
+		undefined -> run_fun(Mfa);
 		Pid -> Pid
 	end.
 
 run_fun([M,F,A]) ->
-	layers_log:debug("run_fun([~p,~p,~p])", [M,F,A]),
 	Pid = proc_lib:spawn_link(M,F,A),
 	erlang:register(M, Pid),
 	Pid;
 	
 run_fun([M,F]) ->
-	layers_log:debug("run_fun([~p, ~p])", [M, F]),
 	A = [self()],
 	run_fun([M,F,A]);
 	
 run_fun([M]) ->
-	layers_log:debug("run_fun([~p])", [M]),
 	F = layers_receive,
 	A = [self()],
 	run_fun([M,F,A]).

@@ -32,6 +32,5 @@ layers_receive(From) ->
 					layers_receive(From)
 			end;
 		Anything ->
-			io:format("Received ~p~n", [Anything]),
 			layers_receive(From)
 	end.
