@@ -10,7 +10,7 @@
 	% layers:start().
 
 start() ->
-	layers:start([converse, whisper, test_app], [{port, 1234}]).
+	layers:start([converse, test_app], [{port, 1234}]).
 	% converse:start(normal, [{layers_receive, [?MODULE, layers_receive]}]).
 
 test() ->
@@ -34,11 +34,4 @@ layers_receive(From) ->
 		Anything ->
 			io:format("Received ~p~n", [Anything]),
 			layers_receive(From)
-	end.
-
-hear(From) ->
-	receive
-		Anything ->
-			io:format("Heard ~p~n", [From]),
-			hear(From)
 	end.
