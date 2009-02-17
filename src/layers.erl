@@ -58,12 +58,16 @@ running_receiver([M,F,A]) ->
 		Pid -> Pid
 	end.
 
-run_fun(Fun) ->
-	case length(Fun) of
-		2 -> [M,F] = Fun;
-		1 -> [M] = Fun, F = layers_receive
-	end,
-	A = [self()],
+run_fun([M,F,A]) ->
 	Pid = proc_lib:spawn_link(M,F,A),
 	erlang:register(M, Pid),
-	Pid.
+	Pid;
+	
+run_fun([M,F]) ->
+	A = [self()],
+	run_fun([M,F,A]);
+	
+run_fun([M]) ->
+	F = layers_receive,
+	A = [self()],
+	run_fun([M,F,A]).
