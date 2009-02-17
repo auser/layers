@@ -8,8 +8,18 @@
 -export ([construct/1]).
 
 start(Layers, Config) ->
+	lists:foreach(fun({Name, Process}) -> 
+		io:format("Starting ~p~n", [Name]),
+		Process(),
+		io:format("Started.~n") end,
+		[
+			{"Layers supervisor", fun() -> layers_sup:start_link() end},
+			{"Logger", fun() -> start_child(layers_log) end},			
+			{"Layers", fun() -> start_layers(Layers, Config) end}
+		]).
+
+start_layers(Layers, Config) ->
 	F = fun([App, Successor]) -> 
-		% process_flag(trap_exit, true),
 		App:start(normal, config:update(successor, [Successor], Config)),
 		receive
 			Anything ->
@@ -19,7 +29,7 @@ start(Layers, Config) ->
 	end,
 	ConstructedArray = construct(Layers),
 	[ F(Layer) || Layer <- ConstructedArray ].
-	
+		
 % Construct an array that has both the layer and the successor
 % such as
 % [Layer, Successor]
@@ -71,3 +81,9 @@ run_fun([M]) ->
 	F = layers_receive,
 	A = [self()],
 	run_fun([M,F,A]).
+	
+start_child(Mod) ->
+    {ok,_} = supervisor:start_child(layers_sup,
+                                    {Mod, {Mod, start_link, []},
+                                     transient, 100, worker, [Mod]}),
+    ok.
