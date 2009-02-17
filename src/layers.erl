@@ -1,5 +1,6 @@
 -module (layers).
 -author ("Ari Lerner").
+-include ("layers.hrl").
 
 -export ([start/2, running_receiver/2]).
 
@@ -38,16 +39,26 @@ construct0(Array, Acc) when length(Array) > 0 ->
 	NewArray = [S|Rest],
 	construct0(NewArray, NewAcc).
 	
-running_receiver(undefined, Fun) ->
-		run_fun(Fun);
+% running_receiver(undefined, Fun) ->
+% 		run_fun(Fun);
+% 
+% running_receiver(Pid, Fun) when is_pid(Pid) ->
+% 	case is_process_alive(Pid) of
+% 		true -> Pid;
+% 		false ->run_fun(Fun)
+% 	end.
 
-running_receiver(Pid, Fun) when is_pid(Pid) ->
-	case is_process_alive(Pid) of
-		true -> Pid;
-		false ->run_fun(Fun)
+pass(SuccessorFun, Msg) ->
+	Pid = running_receiver(SuccessorFun),
+	Pid ! Msg.
+
+running_receiver([M,F,A]) ->
+	erlang:whereis(Name) ->
+		undefined -> run_fun(Fun);
+		Pid -> Pid
 	end.
 
-run_fun(Fun) ->
+run_fun(Successor, Fun) ->
 	case length(Fun) of
 		2 -> [M,F] = Fun;
 		1 -> [M] = Fun, F = layers_receive
