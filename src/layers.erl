@@ -2,7 +2,7 @@
 -author ("Ari Lerner").
 -include ("layers.hrl").
 
--export ([start/2, running_receiver/2]).
+-export ([start/2, running_receiver/1, pass/2]).
 
 % Text exports
 -export ([construct/1]).
@@ -53,15 +53,17 @@ pass(SuccessorFun, Msg) ->
 	Pid ! Msg.
 
 running_receiver([M,F,A]) ->
-	erlang:whereis(Name) ->
-		undefined -> run_fun(Fun);
+	case erlang:whereis(M) of
+		undefined -> run_fun([M,F,A]);
 		Pid -> Pid
 	end.
 
-run_fun(Successor, Fun) ->
+run_fun(Fun) ->
 	case length(Fun) of
 		2 -> [M,F] = Fun;
 		1 -> [M] = Fun, F = layers_receive
 	end,
 	A = [self()],
-	proc_lib:spawn_link(M,F,A).
+	Pid = proc_lib:spawn_link(M,F,A),
+	erlang:register(M, Pid),
+	Pid.
