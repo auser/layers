@@ -4,6 +4,7 @@
 
 -export ([start/2, running_receiver/1, pass/2]).
 -export ([init/0, start/0, add/2]).
+-export ([start_bundle/1]).
 
 % Text exports
 -export ([construct/1, construct_tuples/1]).
@@ -53,9 +54,16 @@ start(Layers, Config) ->
 			{"Layers", fun() -> start_layers(Layers, Config) end}
 		]).
 
+start_bundle(Arr) ->
+	lists:foreach(fun({Name, Process}) -> 
+		io:format("Starting ~p~n", [Name]),
+		Process(),
+		io:format("Started.~n") end,
+	Arr).
+
 start_layers(Layers) ->
-	ConstructedArray = construct(Layers),
-	[ start_application(App, Successor, Config) || [{App, Config}, Successor] <- ConstructedArray ].
+	ConstructedArray = construct_tuples(Layers),
+	[ start_application(App, Successor, Config) || [App, Config, Successor] <- ConstructedArray ].
 	
 start_layers(Layers, Config) ->
 	ConstructedArray = construct(Layers),

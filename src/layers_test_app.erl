@@ -4,11 +4,12 @@
 start_layers() ->
 	layers:init(),
 	layers:add(converse, [{port, 1234}]),
+	layers:add(whisper, []),
 	layers:add(layers_test_app, []),
 	layers:start().
 
 start_slim() ->
-	layers:start([converse, layers_test_app], [{port, 1234}]).
+	layers:start([converse, whisper, layers_test_app], [{port, 1234}]).
 
 start(_Type, Config) ->
 	io:format("Starting layers_test_app with ~p~n", [Config]).
