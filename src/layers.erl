@@ -5,6 +5,7 @@
 -export ([start/2, running_receiver/1, pass/2]).
 -export ([init/0, start/0, add/2]).
 -export ([start_bundle/1]).
+-export ([registered_name/1,register_process/2]).
 
 % Text exports
 -export ([construct/1, construct_tuples/1]).
@@ -22,11 +23,7 @@ init_receive(LayersWithConfig) ->
 			NewLayersWithConfig = [{Name, Config}|LayersWithConfig],
 			init_receive(NewLayersWithConfig);
 		{done} ->
-			lists:foreach(fun({Name, Process}) -> 
-				io:format("Starting ~p~n", [Name]),
-				Process(),
-				io:format("Started.~n") end,
-				[
+			start_bundle([
 					{"Layers supervisor", fun() -> layers_sup:start_link() end},
 					{"Logger", fun() -> start_child(layers_log) end},			
 					{"Layers", fun() -> start_layers(LayersWithConfig) end}
@@ -56,9 +53,9 @@ start(Layers, Config) ->
 
 start_bundle(Arr) ->
 	lists:foreach(fun({Name, Process}) -> 
-		io:format("Starting ~p~n", [Name]),
+		io:format("Starting ~s...~n", [Name]),
 		Process(),
-		io:format("Started.~n") end,
+		io:format("Done.~n") end,
 	Arr).
 
 start_layers(Layers) ->
@@ -70,11 +67,13 @@ start_layers(Layers, Config) ->
 	[ start_application(App, Successor, Config) || [App, Successor] <- ConstructedArray ].
 
 start_application(App, Successor, Config) ->
-	App:start(normal, config:update(successor, [Successor], Config)),
+	StartConfig = config:update(successor, [Successor], Config),
+	Pid = App:start(normal, StartConfig),
 	receive
 		Anything -> io:format("Caught exception ~p~n", [Anything])
 		after 1000 -> ok 
-	end.
+	end,
+	Pid.
 % Construct an array that has both the layer and the successor
 % such as
 % [Layer, Successor]
@@ -87,8 +86,9 @@ construct(Array) ->
 
 construct0([], Acc) -> Acc;
 construct0(Array, Acc) when length(Array) =:= 1 -> 
-	[H] = Array,
-	lists:append(Acc, [[H, H]]);
+	% [H] = Array,
+	% lists:append(Acc, [[H, H]]);
+	Acc;
 construct0(Array, Acc) when length(Array) > 0 ->
 	[H|T] = Array, [S|Rest] = T,
 	NewAcc = lists:append(Acc, [[H,S]]), NewArray = [S|Rest],
@@ -103,8 +103,9 @@ construct0(Array, Acc) when length(Array) > 0 ->
 construct_tuples(Array) -> construct_tuples0(Array, []).
 construct_tuples0([], Acc) -> Acc;
 construct_tuples0(Array, Acc) when length(Array) =:= 1 -> 
-	[{H,Config}] = Array,
-	lists:append(Acc, [[H,Config,H]]);
+	% [{H,Config}] = Array,
+	% lists:append(Acc, [[H,Config,H]]);
+	Acc;
 construct_tuples0(Arr, Acc) ->
 	[{H,Config}|T] = Arr, [{SName, SConfig}|Rest] = T,
 	NewAcc = lists:append(Acc, [[H, Config, SName]]), NewArray = [{SName, SConfig}|Rest],
@@ -112,29 +113,35 @@ construct_tuples0(Arr, Acc) ->
 	
 pass(SuccessorFun, Msg) ->
 	case running_receiver(SuccessorFun) of
-		Pid -> Pid ! Msg;
-		ok -> ok
+		{pid, Pid} -> Pid ! Msg;
+		Anything -> io:format("Received ~p in pass(~p,~p)~n", [Anything, SuccessorFun, Msg])
 	end.
 
 running_receiver(Mfa) ->
-	M = erlang:hd(Mfa),
+	M = registered_name(Mfa),
 	case erlang:whereis(M) of
-		undefined -> run_fun(Mfa);
-		Pid -> Pid
+		undefined -> P = run_fun(Mfa), {pid, P};
+		Pid -> {pid, Pid}
 	end.
 
+register_process(Mfa, Pid) -> 
+	% erlang:register(registered_name(Mfa), Pid).
+	ok.
+	
+registered_name([M,F]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p~p", [M,F])));
+registered_name([M]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p", [M])));
+registered_name(M) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p", [M]))).
+
 run_fun([M,F,A]) ->
-	Pid = proc_lib:spawn_link(M,F,A),
-	erlang:register(M, Pid),
-	Pid;
+	erlang:spawn_link(M,F,A);
 	
 run_fun([M,F]) ->
-	A = [self()],
+	A = [],
 	run_fun([M,F,A]);
 	
 run_fun([M]) ->
 	F = layers_receive,
-	A = [self()],
+	A = [],
 	run_fun([M,F,A]);
 
 run_fun(undefined) ->
