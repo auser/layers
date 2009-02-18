@@ -1,21 +1,23 @@
 -module (layers_test_app).
 -compile (export_all).
 
+-define (PORT, 8765).
+
 start_layers() ->
 	layers:init(),
-	layers:add(converse, [{port, 1234}]),
+	layers:add(converse, [{port, ?PORT}]),
 	layers:add(whisper, []),
 	layers:add(layers_test_app, []),
 	layers:start().
 
 start_slim() ->
-	layers:start([converse, whisper, layers_test_app], [{port, 1234}]).
+	layers:start([converse, whisper, layers_test_app], [{port, ?PORT}]).
 
 start(_Type, Config) ->
 	io:format("Starting layers_test_app with ~p~n", [Config]).
 	
 test() ->
-	converse:open_and_send({10,45,10,234}, {data, whisper:encrypt("hi")}).
+	converse:open_and_send({0,0,0,0}, ?PORT, {data, whisper:encrypt("hi")}).
 
 layers_receive(From) ->
 	receive

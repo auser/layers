@@ -62,7 +62,7 @@ start_bundle(Arr) ->
 	Arr).
 
 start_layers(Layers) ->
-	ConstructedArray = construct_tuples(Layers),
+	ConstructedArray = construct_tuples(lists:reverse(Layers)),
 	[ start_application(App, Successor, Config) || [App, Config, Successor] <- ConstructedArray ].
 	
 start_layers(Layers, Config) ->
