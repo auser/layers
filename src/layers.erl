@@ -80,7 +80,7 @@ construct(Array) ->
 construct0([], Acc) -> Acc;
 construct0(Array, Acc) when length(Array) =:= 1 -> 
 	[H] = Array,
-	lists:append(Acc, [[H, undefined]]);
+	lists:append(Acc, [[H, H]]);
 construct0(Array, Acc) when length(Array) > 0 ->
 	[H|T] = Array, [S|Rest] = T,
 	NewAcc = lists:append(Acc, [[H,S]]), NewArray = [S|Rest],
@@ -91,12 +91,12 @@ construct0(Array, Acc) when length(Array) > 0 ->
 % such as
 % [{bob, "man"}, {jane, "woman"}]
 % ->
-% [[bob, "man", jane], [jane, "woman", undefined]]
+% [[bob, "man", jane], [jane, "woman", jane]]
 construct_tuples(Array) -> construct_tuples0(Array, []).
 construct_tuples0([], Acc) -> Acc;
 construct_tuples0(Array, Acc) when length(Array) =:= 1 -> 
 	[{H,Config}] = Array,
-	lists:append(Acc, [[H,Config,undefined]]);
+	lists:append(Acc, [[H,Config,H]]);
 construct_tuples0(Arr, Acc) ->
 	[{H,Config}|T] = Arr, [{SName, SConfig}|Rest] = T,
 	NewAcc = lists:append(Acc, [[H, Config, SName]]), NewArray = [{SName, SConfig}|Rest],
@@ -108,7 +108,6 @@ pass(SuccessorFun, Msg) ->
 		ok -> ok
 	end.
 
-running_receiver(undefined) -> ok;
 running_receiver(Mfa) ->
 	M = erlang:hd(Mfa),
 	case erlang:whereis(M) of
