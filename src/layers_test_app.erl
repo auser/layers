@@ -4,16 +4,16 @@
 
 -define (PORT, 8765).
 
-start_layers() ->
+start_layers() ->	
 	layers:init(),
 	layers:add(converse, [{port, ?PORT}]),
-	% layers:add(whisper, []),
+	layers:add(whisper, []),
 	layers:add(layers_test_app, []),
 	layers:start().
 
 start_slim() ->
-	layers:start([converse, whisper, layers_test_app], [{port, ?PORT}]),
-	whisper:start(normal, [{successor, [whisper]}]).
+	% [[converse, whisper],[whisper,layers_test_app],[layers_test_app,undefined]]
+	layers:start([converse, whisper, layers_test_app], [{port, ?PORT}]).
 	% converse:start(normal, [{port, 8765}, {successor, [whisper]}]).
 
 start(_Type, Config) ->
@@ -30,10 +30,10 @@ test() ->
 layers_receive() ->
 	receive
 		{data, Socket, Data} ->
-			io:format("Received function ~p~n",[Data]),
 			case Data of
 				{data, Message} ->
 					io:format("Received data ~p~n", [Message]),
+					converse:send_to_open(Socket, {data, Socket, "Thanks!"}),
 					layers_receive();
 				{who_are_you} ->
 					io:format("Received who are you from ~p~n", [Socket]),
@@ -43,6 +43,6 @@ layers_receive() ->
 					layers_receive()
 			end;
 		Anything ->
-			io:format("Received Anything: ~p~n", [Anything]),
+			io:format("Received anything in ~p: ~p~n", [?MODULE,Anything]),
 			layers_receive()
 	end.
