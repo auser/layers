@@ -46,7 +46,12 @@ start(Layers, Config) ->
 
 start_custom_layers(LayersWithConfig) ->
 	start_bundle([
-		{"Layers supervisor", fun() -> {ok,P} = layers_sup:start_link(), unlink(P) end},
+		{"Layers supervisor", fun() -> 
+				case layers_sup:start_link() of
+					{ok,P} -> unlink(P);
+					Anything -> ok
+				end
+			end},
 		{"Logger", fun() -> start_child(layers_log, []) end},			
 		{"Layers", fun() -> start_layers(LayersWithConfig) end}
 	]).

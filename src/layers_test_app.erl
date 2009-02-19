@@ -2,7 +2,7 @@
 -compile (export_all).
 -behaviour (application).
 
--define (PORT, 8765).
+-define (PORT, 22002).
 
 start_layers() ->	
 	layers:init(),
