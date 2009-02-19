@@ -122,8 +122,8 @@ running_receiver(Mfa) ->
 		Pid -> {pid, Pid}
 	end.
 
-registered_process(Mfa) -> erlang:whereis(registered_name(Mfa)).
-register_process(Mfa, Pid) -> erlang:register(registered_name(Mfa), Pid).
+registered_process(Mfa) -> global:whereis_name(registered_name(Mfa)).
+register_process(Mfa, Pid) -> global:register_name(registered_name(Mfa), Pid).
 	
 registered_name([M,F]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p~p", [M,F])));
 registered_name([M]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p", [M])));
