@@ -13,7 +13,7 @@
 % Init the layers
 init() -> 
 	Pid = spawn(fun() -> init_receive([]) end),
-	erlang:register(layers_processes, Pid).
+	global:register_name(layers_processes, Pid).
 	
 init_receive(LayersWithConfig) ->
 	receive
@@ -31,10 +31,10 @@ init_receive(LayersWithConfig) ->
 	end.
 	
 start() -> 
-	Pid = whereis(layers_processes),
+	Pid = global:whereis_name(layers_processes),
 	Pid ! {done}.
 add(Name, Config) -> 
-	Pid = whereis(layers_processes),
+	Pid = global:whereis_name(layers_processes),
 	Pid ! {add, Name, Config}.
 	
 start(Layers, Config) ->
