@@ -2,10 +2,9 @@
 -author ("Ari Lerner").
 -include ("layers.hrl").
 
--export ([start/2, running_receiver/1, pass/2]).
+-export ([start/2, pass/2]).
 -export ([init/0, start/0, add/2]).
 -export ([start_bundle/1, start_child/2]).
--export ([registered_name/1,register_process/2]).
 
 % Text exports
 -export ([construct/1, construct_tuples/1]).
@@ -113,35 +112,10 @@ construct_tuples0(Arr, Acc) ->
 	[{H,Config}|T] = Arr, [{SName, SConfig}|Rest] = T,
 	NewAcc = lists:append(Acc, [[H, Config, SName]]), NewArray = [{SName, SConfig}|Rest],
 	construct_tuples0(NewArray, NewAcc).
-	
-pass(SuccessorFun, Msg) ->
-	io:format("pass received: ~p~n", [SuccessorFun]),
-	case running_receiver(SuccessorFun) of
-		{pid, Pid} -> Pid ! Msg;
-		Anything -> io:format("Received ~p in pass(~p,~p)~n", [Anything, SuccessorFun, Msg])
-	end.
 
-running_receiver(Mfa) ->
-	case registered_process(Mfa) of
-		undefined -> {pid, run_fun(Mfa)};
-		Pid -> {pid, Pid}
-	end.
-
-registered_process(Mfa) -> global:whereis_name(registered_name(Mfa)).
-register_process(Mfa, Pid) -> global:register_name(registered_name(Mfa), Pid).
-	
-registered_name([M,F]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p~p", [M,F])));
-registered_name([M]) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p", [M])));
-registered_name(M) -> erlang:list_to_atom(lists:flatten(io_lib:format("layers~p", [M]))).
-
-run_fun([M,F,A]) -> 
-	Pid = spawn(M,F,A),
-	io:format("Running ~p on pid ~p~n", [registered_name([M]), Pid]),
-	Pid;
-	
-run_fun([M,F]) -> A = [], run_fun([M,F,A]);
-run_fun([M]) -> F = layers_receive, A = [], run_fun([M,F,A]);
-run_fun(undefined) -> io:format("Error: undefined successor~n").
+pass([M,F,A], Msg) -> apply(M,F,A);	
+pass([M,F], Msg) -> apply(M,F,[Msg]);
+pass([M], Msg) -> apply(M,layers_receive,[Msg]).
 
 start_child(Mod, []) ->
 	supervisor:start_child(layers_sup,{Mod, {Mod, start_link, []}, permanent, 100, worker, [Mod]});
