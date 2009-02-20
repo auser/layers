@@ -27,22 +27,6 @@ init([Config]) ->
 test() ->
 	converse:open_and_send({0,0,0,0}, ?PORT, {data, whisper:encrypt("hi")}).
 
-layers_receive() ->
-	receive
-		{data, Socket, Data} ->
-			case Data of
-				{data, Message} ->
-					io:format("Received data ~p~n", [Message]),
-					converse:send_to_open(Socket, {data, Socket, "Thanks!"}),
-					layers_receive();
-				{who_are_you} ->
-					io:format("Received who are you from ~p~n", [Socket]),
-					layers_receive();
-				Anything ->
-					io:format("Received anything: ~p~n", [Anything]),
-					layers_receive()
-			end;
-		Anything ->
-			io:format("Received anything in ~p: ~p~n", [?MODULE,Anything]),
-			layers_receive()
-	end.
+layers_receive(Msg) ->
+	io:format("~p received ~p~n", [Msg]),
+	ok.
