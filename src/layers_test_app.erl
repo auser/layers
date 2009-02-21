@@ -27,6 +27,6 @@ init([Config]) ->
 test() ->
 	converse:open_and_send({0,0,0,0}, ?PORT, {data, whisper:encrypt("hi")}).
 
-layers_receive({}) ->
-	io:format("~p received ~p~n", [Msg]),
-	ok.
+layers_receive(Data) ->
+	io:format("Data: ~p~n", [Data]),
+	Data.
