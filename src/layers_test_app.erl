@@ -27,6 +27,9 @@ init([Config]) ->
 test() ->
 	converse:open_and_send({0,0,0,0}, ?PORT, {data, whisper:encrypt("hi")}).
 
-layers_receive(Data) ->
-	io:format("Unencrypted in ~p data: ~p~n", [?MODULE, Data]),
-	Data.
+layers_receive(Msg) ->
+  case Msg of
+    {data, Socket, Data} ->
+      io:format("Unencrypted in ~p data: ~p~n", [?MODULE, Data]),
+      converse:reply(Socket, "Thanks!")
+  end.

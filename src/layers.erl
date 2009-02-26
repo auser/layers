@@ -30,8 +30,11 @@ init_receive(LayersWithConfig) ->
 	end.
 	
 start() -> 
-	Pid = global:whereis_name(layers_processes),
-	Pid ! {done}.
+	case global:whereis_name(layers_processes) of
+	  Pid -> Pid ! {done};
+	  {error, Reason} -> ok
+	end.
+	
 add(Name, Config) -> 
 	Pid = global:whereis_name(layers_processes),
 	Pid ! {add, Name, Config}.
