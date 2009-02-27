@@ -1,4 +1,4 @@
 Layers
 ------
 
-Every layer in the application must implement the start function and the send_function.
+Layers is an application that is intending on separating the functionality of your application into easily definable "layers."
